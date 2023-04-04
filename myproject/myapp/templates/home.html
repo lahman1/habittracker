@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Welcome, {{ user.username }}!</h1>
+  <h2 style="text-align: center;">Your Habits:</h2>
+  <div class="container">
+    <ul id="habits-list">
+      {% for habit in habits %}
+         <li data-habit-id="{{ habit.id }}">
+          <div class="habit">
+            <h3>{{ habit.name }}</h3>
+            <a href="{% url 'edit_habit' habit.id %}">Edit</a>
+            <a href="{% url 'delete_habit' habit.id %}">Delete</a>
+            <p class="habit-description hidden">{{ habit.description }}</p>
+          </div>
+        </li>
+      {% empty %}
+        <li>No habits found. Add a new habit!</li>
+      {% endfor %}
+    </ul>
+    <label for="show_descriptions">Show/hide descriptions</label>
+    <input type="checkbox" id="show_descriptions"><br><br>
+    <a href="{% url 'prebuilt_habits' %}">Add from prebuilt habits</a><br><br>
+    <a href="{% url 'add_habit' %}" class="submit-button">Add Habit</a><br>
+  </div>
+  <script>
+    $(document).ready(function() {
+      $("#habits-list").sortable({
+        update: function(event, ui) {
+          let habitOrder = $(this).sortable("toArray", { attribute: "data-habit-id" });
+          $.ajax({
+            url: "{% url 'update_habit_order' %}",
+            type: "POST",
+            data: {
+              order: JSON.stringify(habitOrder),
+              csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            dataType: "json",
+            success: function(response) {
+              console.log(response);
+            }
+          });
+        }
+      });
+    });
+  </script>
+  <script>
+    document.getElementById('show_descriptions').addEventListener('change', function() {
+        let descriptions = document.getElementsByClassName('habit-description');
+        for (let i = 0; i < descriptions.length; i++) {
+            if (this.checked) {
+                descriptions[i].style.display = 'block';
+            } else {
+                descriptions[i].style.display = 'none';
+            }
+        }
+    });
+  </script>
+{% endblock %}

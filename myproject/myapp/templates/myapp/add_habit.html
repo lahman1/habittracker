@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Input the details of the Habit you would like to create</h1>
+    <form method="post" class="habit-form">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.name.label_tag }}{{ form.name }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label_tag }} {{ form.description }}
+        </div>
+        <input type="submit" value="Add habit" class="submit-button">
+    </form>
+    <a href="{% url 'home' %}">Go Home</a>
+{% endblock %}
